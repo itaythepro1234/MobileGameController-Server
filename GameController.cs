@@ -39,7 +39,11 @@ namespace MobileGameController
 
         public string GetInfo() { return this.info; }
 
-        public void Close() { this.run = false; }
+        public void Close() {
+            this.run = false;
+            tcpClient.Close();
+            OnCloseEvent();
+        }
 
         protected virtual void OnCloseEvent(){ }
 
@@ -66,6 +70,7 @@ namespace MobileGameController
                 //disconnect
                 if (bytesRead < 1) {
                     run = false;
+                    tcpClient.Close();
                     OnCloseEvent();
                 }
                 else
