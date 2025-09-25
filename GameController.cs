@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.IO;
-using System.Linq;
-using System.Media;
-using System.Net.Http;
 using System.Net.Sockets;
-using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 //credit-itaythepro1234
 namespace MobileGameController
 {
@@ -22,15 +16,16 @@ namespace MobileGameController
         private string info;
 
 
-        public GameController(TcpListener tcpListener) {
+        public GameController(TcpListener tcpListener)
+        {
             this.tcpClient = tcpListener.AcceptTcpClient();
             this.x = 0;
-            this.y=0;
+            this.y = 0;
             this.run = true;
             this.info = "";
             this.stream = tcpClient.GetStream();
 
-            new Thread(()=> { StartDataReading(); }).Start();
+            new Thread(() => { StartDataReading(); }).Start();
             new Thread(() => { MoveDetector(); }).Start();
         }
 
@@ -39,13 +34,14 @@ namespace MobileGameController
 
         public string GetInfo() { return this.info; }
 
-        public void Close() {
+        public void Close()
+        {
             this.run = false;
             tcpClient.Close();
             OnCloseEvent();
         }
 
-        protected virtual void OnCloseEvent(){ }
+        protected virtual void OnCloseEvent() { }
 
         byte[] data;
         public void StartDataReading()
@@ -68,14 +64,15 @@ namespace MobileGameController
                 }
 
                 //disconnect
-                if (bytesRead < 1) {
+                if (bytesRead < 1)
+                {
                     run = false;
                     tcpClient.Close();
                     OnCloseEvent();
                 }
                 else
-                {   
-                    string input= Encoding.ASCII.GetString(data,0,bytesRead);
+                {
+                    string input = Encoding.ASCII.GetString(data, 0, bytesRead);
                     HandleInput(input);
                 }
 
@@ -91,10 +88,12 @@ namespace MobileGameController
             catch (Exception ex) { }
         }
 
-        private void MoveDetector() {
+        private void MoveDetector()
+        {
             float locx = x;
             float locy = y;
-            while (true) {
+            while (true)
+            {
                 if (locx != x) { OnJoystickMoveEvent(); }
                 else if (locy != y) { OnJoystickMoveEvent(); }
                 locx = x;
@@ -103,15 +102,21 @@ namespace MobileGameController
             }
         }
 
-        private void HandleInput(string input) {
+        private void HandleInput(string input)
+        {
             string[] messages = input.Split(';');
-            foreach (string message in messages) {
-                string[] nums= message.Split(',');
-                if (nums.Length == 2) {
+            foreach (string message in messages)
+            {
+                string[] nums = message.Split(',');
+                if (nums.Length == 2)
+                {
                     this.x = float.Parse(nums[0]);
                     this.y = float.Parse(nums[1]);
-                } else if(!message.Equals("")){
-                    switch (message.Substring(0,1)) { 
+                }
+                else if (!message.Equals(""))
+                {
+                    switch (message.Substring(0, 1))
+                    {
                         case "u":
                             OnUpButtonPressEvent();
                             break;
@@ -122,7 +127,7 @@ namespace MobileGameController
                             OnLeftButtonPressEvent();
                             break;
                         case "r":
-                            OnRightButtonPressEvent();  
+                            OnRightButtonPressEvent();
                             break;
                         case "i":
                             this.info = message.Substring(1);
@@ -139,11 +144,11 @@ namespace MobileGameController
 
         protected virtual void OnJoystickMoveEvent() { }
 
-        protected virtual void OnUpButtonPressEvent() {}
+        protected virtual void OnUpButtonPressEvent() { }
         protected virtual void OnDownButtonPressEvent() { }
-        protected virtual void OnLeftButtonPressEvent() { } 
-        
-        protected virtual void OnRightButtonPressEvent() {}
+        protected virtual void OnLeftButtonPressEvent() { }
+
+        protected virtual void OnRightButtonPressEvent() { }
 
     }
 }
